@@ -346,21 +346,28 @@ class pyxhookmouseevent:
 #########################END CLASS DEF#################################
 #######################################################################
 
-
+def kbeventhandler(event):    
+    if event.Key=='Home' and 'vlc' in event.WindowProcName.lower():
+        # self.queue.put(-1)
+        print 'home'
+    if event.Key=='End' and 'vlc' in event.WindowProcName.lower():
+        # self.queue.put(1)
+        print 'end'
+    if event.Key=='F2'  and 'vlc' in event.WindowProcName.lower():
+        # self.queue.put(2)
+        print 'F2'
+    print 'event detected'
 
   
 if __name__ == '__main__':
     hm = HookManager()
     hm.HookKeyboard()
-    hm.HookMouse()
-    hm.KeyDown = hm.printevent
-    hm.KeyUp = hm.printevent
-    hm.MouseAllButtonsDown = hm.printevent
-    hm.MouseAllButtonsUp = hm.printevent
+    # hm.HookMouse()
+    hm.KeyDown = kbeventhandler
+    # hm.KeyUp = hm.printevent
+    # hm.MouseAllButtonsDown = hm.printevent
+    # hm.MouseAllButtonsUp = hm.printevent
     hm.start()
-    # print 'exiting'
-    time.sleep(100)
+    time.sleep(20)
     hm.cancel()
-    sys.exit()
-    # 
-    #
+
