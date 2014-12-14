@@ -8,6 +8,9 @@ It does the following:
 3. It remembers the last played file for each directory, which can be loaded by pressing F2 or clicking on the appropriate item in the appindicator menu
 4. When started from Dash, or the desktop file or the terminal, if it is not the first time the script is running, it loads the last played file using vlcwrapy-nix.
 
+A video demonstration is available [HERE](https://www.youtube.com/watch?v=80WZLCe3rR0).
+
+
 ##Dependencies
 ```python-appindicator```, ```python-natsort```, ```python-psutil```     
 to install via apt,     
