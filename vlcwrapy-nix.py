@@ -5,12 +5,14 @@ import natsort
 import pyxhook as hook
 import atexit as at_exit
 import pickle
+import argparse
 # syspath = os.path.abspath((os.path.dirname(os.readlink(__file__))))
 # if not syspath in sys.path:
 #     sys.path.insert(1, syspath)
 # del syspath
 
 statefile=os.path.expanduser('~/.vlcwrapy-nix/vlcdatabase.p')
+show_notifications=True
 class Vlc:
     def __init__(self,filename):        
         self.now_playing=filename
@@ -37,6 +39,7 @@ class Vlc:
             return True
         else:
             return False
+
 def fetch_watch_table():
     if os.path.exists(statefile):
         with open(statefile) as f:
@@ -76,7 +79,7 @@ class Indicator:
         self.a.set_status( appindicator.STATUS_ACTIVE )
         self.vlc=Vlc(path) 
         self.build_menu()
-        gobject.timeout_add(10*1000, self.quitCallback)
+        gobject.timeout_add(5*1000, self.quitCallback)
         at_exit.register(self.save_state)        
         self.last_alive=0
    
@@ -85,7 +88,7 @@ class Indicator:
             self.last_alive=time.time()
         else:
             dead_since=time.time()-self.last_alive
-            if dead_since>1:
+            if dead_since>2:
                 gtk.mainquit()
         return True
 
@@ -118,6 +121,7 @@ class Indicator:
     def save_state(self):
         table=fetch_watch_table()
         table[os.getcwd()]=self.vlc.now_playing
+        table['lastplayed']=os.path.join(os.getcwd(),self.vlc.now_playing)
         with open(statefile,'w') as f:
             pickle.dump(table,f)
 
@@ -133,9 +137,11 @@ class Message:
         notify2.init("title")
         self.notice = notify2.Notification(title, 'automation-indicator active')
         # self.notice.show()
-    def display_error(self,message):
-        self.notice.update(self.title,message)
-        return self.notice.show()
+    def display(self,message,icon):
+        self.notice.update(self.title,message,icon=icon)
+        self.notice.timeout=100
+        if show_notifications:
+            self.notice.show()
 notify=Message('vlcwrapy-nix')
 
 class Hook:
@@ -149,12 +155,15 @@ class Hook:
         # print event
         if event.Key=='Home' and 'vlc' in event.WindowProcName.lower():
             self.ind.menuHandler(None,-1)
+            notify.display('[Home] Previous file','gtk-media-next-rtl')
             # print 'home'
         if event.Key=='End' and 'vlc' in event.WindowProcName.lower():
             self.ind.menuHandler(None,1)
+            notify.display('[End] Next File','gtk-media-next-ltr')
             # print 'end'
         if event.Key=='F2'  and 'vlc' in event.WindowProcName.lower():
             self.ind.menuHandler(None,2)
+            notify.display('[F2] Loading last played in current directory','reload')
             # print 'F2'
         # print 'event detected'
 
@@ -164,7 +173,27 @@ class Hook:
 
 def main():    
     gobject.threads_init()
-    path=sys.argv[1]
+    # notify.display(str(sys.argv),'vlc')
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--runfromfile", help="run vlcwrapy-nix from file",nargs='?')
+    parser.add_argument("location", help= "file to open",nargs='?')
+    args = parser.parse_args()
+    if not args.location:
+        lastwatched=fetch_watch_table().get('lastplayed',False)
+        if lastwatched:
+            filedir,path=os.path.split(lastwatched)
+            os.chdir(filedir)            
+        else:
+            notify.display('Run vlcwrapy-nix from a video file.','error')
+            sys.exit()   
+    else:
+        if args.runfromfile:
+            filedir,path=os.path.split(args.location)        
+            os.chdir(filedir)
+        else:
+            path=args.location
+         
+    # notify.display_error('filename received={}\n cwd={}'.format(path,os.getcwd()))
     seek_and_destroy('vlc')       
     indicator=Indicator(path)
     KBhook=Hook(indicator)
@@ -173,3 +202,9 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+'''
+arguments =['/home/thekindlyone/projects/nautilus-test.py', '/media/thekindlyone/storage/anime/Guilty Crown/[Commie] Guilty Crown - 10 [6094511C].mkv']
+cwd=/home/thekindlyone
+'''

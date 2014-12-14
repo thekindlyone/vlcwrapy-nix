@@ -361,12 +361,12 @@ def kbeventhandler(event):
   
 if __name__ == '__main__':
     hm = HookManager()
-    hm.HookKeyboard()
-    # hm.HookMouse()
-    hm.KeyDown = kbeventhandler
+    # hm.HookKeyboard()
+    hm.HookMouse()
+    # hm.KeyDown = kbeventhandler
     # hm.KeyUp = hm.printevent
-    # hm.MouseAllButtonsDown = hm.printevent
-    # hm.MouseAllButtonsUp = hm.printevent
+    hm.MouseAllButtonsDown = hm.printevent
+    hm.MouseAllButtonsUp = hm.printevent
     hm.start()
     time.sleep(20)
     hm.cancel()
