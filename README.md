@@ -13,7 +13,7 @@ It does the following:
 to install via apt,     
 ```sudo apt-get install python-appindicator```       
 ```sudo apt-get install python-natsort```     
-```sudo apt-get install python-psutil```
+```sudo apt-get install python-psutil```       
 It also uses pyxhook.py from [this](https://github.com/jeorgen/pyworklogger) project. Many thanks to the author.
 
 ##How to use
