@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=vlcwrapy-nix
+Icon=vlc
+Type=Application
+Exec=/path/to/vlcwrapy-nix.py --runfromfile %f
