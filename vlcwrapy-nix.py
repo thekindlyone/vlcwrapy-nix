@@ -230,7 +230,7 @@ def main():
             os.chdir(filedir)
         else:
             path = args.location
-
+    log('filename received={}\n cwd={}'.format(path,os.getcwd()))
     notify.display('filename received={}\n cwd={}'.format(path,os.getcwd()),'vlc')
     seek_and_destroy('vlc')
     indicator = Indicator(path)
