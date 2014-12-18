@@ -21,7 +21,7 @@ to install via apt,
 ```sudo pip install subliminal```       
 If you do not have pip, install pip from apt:        
 ```sudo apt-get install python-pip```        
-pip can also be downloaded by following the instructions [here](https://pip.pypa.io/en/latest/installing.html)
+pip can also be downloaded by following the instructions [here](https://pip.pypa.io/en/latest/installing.html).                   
 It also uses pyxhook.py from [this](https://github.com/jeorgen/pyworklogger) project. Many thanks to the author. This file is bundled.
 
 ##How to use
