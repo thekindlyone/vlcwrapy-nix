@@ -7,7 +7,7 @@ It does the following:
 2. It places a system tray indicator,exposing similar controls.
 3. It remembers the last played file for each directory, which can be loaded by pressing F2 or clicking on the appropriate item in the appindicator menu
 4. When started from Dash, or the desktop file or the terminal, if it is not the first time the script is running, it loads the last played file using vlcwrapy-nix.
-
+5. It provides integration with the subliminal subtitles downloader, finally giving vlc the subtitles seeker it deserves. 
 A video demonstration is available [HERE](https://www.youtube.com/watch?v=80WZLCe3rR0).
 
 
@@ -17,7 +17,12 @@ to install via apt,
 ```sudo apt-get install python-appindicator```       
 ```sudo apt-get install python-natsort```     
 ```sudo apt-get install python-psutil```       
-It also uses pyxhook.py from [this](https://github.com/jeorgen/pyworklogger) project. Many thanks to the author.
+[```subliminal```](https://github.com/Diaoul/subliminal) to be installed via pip:       
+```sudo pip install subliminal```       
+If you do not have pip, install pip from apt:        
+```sudo apt-get install python-pip```        
+pip can also be downloaded by following the instructions [here](https://pip.pypa.io/en/latest/installing.html)
+It also uses pyxhook.py from [this](https://github.com/jeorgen/pyworklogger) project. Many thanks to the author. This file is bundled.
 
 ##How to use
 1. Either git clone this repository, or download zip and extract contents.
