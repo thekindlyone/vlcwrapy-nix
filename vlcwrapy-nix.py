@@ -12,8 +12,7 @@ import natsort
 import pyxhook as hook
 import atexit as at_exit
 import pickle
-import argparse
-
+import threading
 statefile = os.path.expanduser('~/.vlcwrapy-nix/vlcdatabase.p')
 show_notifications = True
 
@@ -86,6 +85,23 @@ def lookupIcon(icon_name):
     return icon_theme.lookup_icon(icon_name, 48, 0).get_filename()
 
 
+
+class SubliminalThread(threading.Thread):
+    def __init__(self,filename):
+        print 'subliminal'
+        threading.Thread.__init__(self)
+        self.filename=filename        
+    def run(self):
+        try:
+            retcode=subprocess.call(['subliminal','-q','-s','-f','-l','en','--',self.filename])
+            if retcode==0:
+                notify.display('Subtitles Downloaded','text')
+            else:
+                notify.display('Subtitles Not Found','error')
+        except:
+            e = sys.exc_info()[0]
+            notify.display(e,'error')
+
 class Indicator:
 
     def __init__(self, path):
@@ -125,7 +141,24 @@ class Indicator:
         menu.append(next_file_item)
         reload_item = self.make_item('Resume', 'reload')
         menu.append(reload_item)
+
+        subsitem=self.make_item('Download Subtitles','text')
+        subsitem.connect('activate',self.subs)
+        menu.append(subsitem)
+        quitmenuitem=self.make_item('Quit','gtk-quit')
+        quitmenuitem.connect('activate',self.quit)
+        menu.append(quitmenuitem)
         self.a.set_menu(menu)
+
+    def quit(self,item):
+        self.vlc.kill()
+        gtk.mainquit()
+
+    def subs(self,item):
+        f=self.vlc.now_playing
+        subliminal=SubliminalThread(f)
+        subliminal.start()
+        
 
     def menuHandler(self, item, direction):
         f = get_new_file(direction=direction, current=self.vlc.now_playing)
@@ -151,12 +184,13 @@ class Message:
 
     def __init__(self, title):
         self.title = title
+        # self.icon=icon
         notify2.init("title")
         self.notice = notify2.Notification(
             title, 'automation-indicator active')
         # self.notice.show()
 
-    def display(self, message, icon=None):
+    def display(self, message, icon='vlc'):
         self.notice.update(self.title, message, icon=icon)
         self.notice.timeout = 100
         if show_notifications:
@@ -197,7 +231,7 @@ class Hook:
 from datetime import datetime
 logfile=os.path.expanduser('~/.vlcwrapy-nix/vlcwrapy-nix.log')
 def log(logline):
-    with open(logfile,'a') as f:
+    with open(logfile,'w') as f:
         f.write(logline+'\n')
 
 
@@ -206,32 +240,19 @@ def log(logline):
 def main():
     gobject.threads_init()
     log('\n\n\nStarted '+str(datetime.now()))
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--runfromfile", help="run vlcwrapy-nix from file", nargs='?')
-    parser.add_argument("location", help="file to open", nargs='?')
-    args = parser.parse_args()
-    log('args={}\nargs={}'.format(str(sys.argv),str(args)))
-    # if args.runfromfile:      
-
-
-
-    if not args.location:
+    if len(sys.argv)==1 : #no argument
         lastwatched = fetch_watch_table().get('lastplayed', False)
         if lastwatched:
             filedir, path = os.path.split(lastwatched)
-            os.chdir(filedir)
+            
         else:
             notify.display('Run vlcwrapy-nix from a video file.', 'error')
             sys.exit()
     else:
-        if args.runfromfile:
-            filedir, path = os.path.split(args.location)
-            os.chdir(filedir)
-        else:
-            path = args.location
+        filedir,path=os.path.split(os.path.abspath(sys.argv[1]))
+    os.chdir(filedir)
     log('filename received={}\n cwd={}'.format(path,os.getcwd()))
-    notify.display('filename received={}\n cwd={}'.format(path,os.getcwd()),'vlc')
+    # notify.display('filename received={}\n cwd={}'.format(path,os.getcwd()),'vlc')
     seek_and_destroy('vlc')
     indicator = Indicator(path)
     KBhook = Hook(indicator)
